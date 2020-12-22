@@ -1,28 +1,19 @@
-import SwiftUI
 import Foundation
 
-class Entity: Codable{
+protocol Entity: Codable{
     
-   public init(id: String, name: String, description: String) {
-        self.id = id
-        self.name = name
-        self.description = description
-    }
-    
-    
-    var id: String
-    var name: String
-    var description: String
-    
-    
+    var id: String {get set}
+   
 }
 
 
-class Container {
+
+@available(OSX 10.15, *)
+class Container<T>: ObservableObject where T: Entity {
     
-    internal init(containerName: String) {
+    public init(containerName: String) {
         self.containerName = containerName
-        self.entities = [:]
+        self.entities = []
         
         let directoryURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         
@@ -30,19 +21,30 @@ class Container {
         
         // Have not checked if directory gets destroyed every time (it should not)
         do {
-            try FileManager.default.createDirectory(at: newContainerPath, withIntermediateDirectories: true, attributes: nil)
-        } catch let error as NSError {
+            
+            
+                try FileManager.default.createDirectory(at: newContainerPath, withIntermediateDirectories: true, attributes: nil)
+
+                print("New directory: \(newContainerPath.path)")
+            
+            
+                    } catch let error as NSError {
             print("Unable to create directory \(error.debugDescription)")
         }
-        print("New directory: \(newContainerPath.path)")
+        
+      _ =  self.fetchEntities()
     }
     
     let containerName: String
-    var entities: [String: Entity]
     
-    func appendEntity(entity: Entity){
+    var entities: [T] = []
+    var hash: [String:T] = [:]
+    
+    func appendEntity(entity: T){
         
-        self.entities[entity.id] = entity
+        self.entities.append(entity)
+        self.hash[entity.id] = entity
+        
         let jsonEncoder = JSONEncoder()
         do {
             
@@ -65,7 +67,7 @@ class Container {
        
     }
     
-    func removeEntity(entity: Entity){
+    func removeEntity(entity: T){
         
         let directoryURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         
@@ -84,7 +86,7 @@ class Container {
         
     }
     
-    func fetchEntities() -> [Entity]{
+    func fetchEntities() -> [T]{
         
         let fileManager = FileManager.default
         
@@ -92,7 +94,8 @@ class Container {
         
         let newContainerPath = directoryURL.appendingPathComponent(self.containerName)
         
-        var entities: [Entity] = []
+        var entities: [T] = []
+        var hash: [String:T] = [:]
         
         do {
             let fileURLs = try fileManager.contentsOfDirectory(at: newContainerPath, includingPropertiesForKeys: nil)
@@ -107,9 +110,11 @@ class Container {
                  
                     
                     
-                    let newEntity: Entity  = try JSONDecoder().decode(Entity.self, from: jsonData as Data)
-                    print(newEntity)
+                    let newEntity: T  = try JSONDecoder().decode(T.self, from: jsonData as Data)
+                   // print(newEntity) 🧟‍♂️
                     entities.append(newEntity)
+                    hash[newEntity.id] = newEntity
+                    
                 } catch {
                     print("Error reading entity at file \(file.absoluteString)")
                     print(error.localizedDescription)
@@ -119,7 +124,14 @@ class Container {
             print("Error while enumerating files \(newContainerPath.path): \(error.localizedDescription)")
         }
         
+        print("Entities fetched: \(self.entities)")
+        
+        self.entities = entities
+        self.hash = hash
+        print("Container \(self.containerName) updated with the following list: \(self.entities)")
+        print("Container \(self.containerName) updated with the following hash: \(self.hash)")
         return entities
     }
+    
     
 }
