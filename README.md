@@ -1,6 +1,7 @@
 # StorageKit
 
-![App Image] (Resources/StorageKit-Header.png?)
+![Header] (Resources/StorageKit-Header.png)
+
 A description of this package.
 
 Creating your data
