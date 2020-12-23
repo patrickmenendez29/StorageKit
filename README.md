@@ -83,3 +83,14 @@ Button(action: {
         }
         
    ```
+   Removing an entity is even easier
+   ```swift
+   public func removeEntity(entity: Entity)
+   ```
+   If an external array is required, fetchEntities() will return an array filled with all entities inside the container
+   ```swift 
+   
+   //result will be a copy, which means that if the contasiner updates after calling it, it will remain static
+   
+   public func fetchEntity() -> [Entity]
+   ```
