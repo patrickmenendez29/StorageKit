@@ -1,6 +1,6 @@
 # StorageKit
 
-![Header] (Resources/StorageKit-Header.png)
+![Header](Resources/StorageKit-Header.png)
 
 A description of this package.
 
