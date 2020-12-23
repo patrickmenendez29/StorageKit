@@ -63,3 +63,23 @@ struct ContentView: View {
             
     }
 } 
+```
+
+Adding entities to a container 
+to append a new entity, use appendEntity(entity: Entity)
+
+```swift
+
+public func appendEntity(entity: Entity) 
+
+//Example 
+
+Button(action: {
+            // ids must be unique
+            let sampleUser = User(id: "Sample user")
+            self.userContainer.appendEntity(entity: sampleUser)
+        }){
+            Text("Add a sample entity")
+        }
+        
+   ```
